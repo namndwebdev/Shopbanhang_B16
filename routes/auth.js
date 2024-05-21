@@ -1,9 +1,26 @@
 var express = require('express');
 var router = express.Router();
+var passport = require('passport');
+const jwt = require('jsonwebtoken')
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.json('ok')
+router.post('/login', function(req, res, next){
+  passport.authenticate('local', function(err, user, info) {
+    try {
+      if (err) { return res.status(400).json('dang nhap khong thanh cong') }
+      if (!user) { return res.status(400).json('Tai khoan khong ton tai') }
+      
+      let token = jwt.sign(user, process.env.JWT_SECRET, {
+        expiresIn: 60 * 60 * 24
+      })
+            
+      return res.json({
+        token,
+        user
+      })
+    } catch (error) {
+      return res.status(500).json('Loi server')
+    }
+  })(req, res, next)
 });
 
 module.exports = router;
