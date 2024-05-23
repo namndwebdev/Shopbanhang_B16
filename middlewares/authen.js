@@ -1,0 +1,21 @@
+const { verifyToken } = require('@helper/jwt')
+const checkAuth = (req, res, next)=>{
+    try {
+        let token = req.headers.authorization
+        if(token){
+            token = token?.split(' ')[1]
+            let data = verifyToken(token)
+            if(data){
+                next()
+            }
+        }else{
+            return res.status(401).json('Ban chua dang nhap')
+        }
+    } catch (error) {
+        return res.status(401).json('Token khong hop le')
+    }
+}
+
+module.exports = {
+    checkAuth
+}

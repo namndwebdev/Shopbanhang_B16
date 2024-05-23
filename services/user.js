@@ -21,10 +21,14 @@ const findOrCreate = async (query, createData) => {
     return document;
 };
 
+const getAllUser = ()=>{
+    return UserModel.find({}).select('-password')
+}
 
 module.exports = {
     getUserByEmailAndPassword,
     getUserByEmail,
     findOrCreate,
-    createUser
+    createUser,
+    getAllUser
 }
