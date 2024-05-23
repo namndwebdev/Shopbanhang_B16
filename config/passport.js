@@ -1,8 +1,9 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
-const UserModel = require('@models/User')
-
+const { findOrCreate, getUserByEmail } = require('@services/user');
+const bcrypt = require('bcrypt')
+const saltRounds = 10
 passport.serializeUser( (user, done) => {
     done(null, user)
 })
@@ -16,14 +17,18 @@ passport.use(new LocalStrategy({
         passwordField: 'password'
     },
     function(email, password, done) {
-        UserModel.findOne({ email: email, password: password }).lean()
+        getUserByEmail(email)
         .then(user=>{
             if(!user){
-            return done(null, false)
+                return done(null, false)
             }
 
             if(user){
-            return done(null, user)
+                if(bcrypt.compareSync(password, user.password)){
+                    return done(null, user)
+                }else{
+                    return done(null, false) 
+                }
             }
         })
         .catch(err=>{
@@ -40,9 +45,17 @@ passport.use(new GoogleStrategy({
   },
   function(accessToken, refreshToken, profile, cb) {
     
-    console.log(profile._json);
    if(profile._json){
-        cb(null, profile._json)
+        const newUser = profile._json
+        newUser.avatar = newUser.picture
+        newUser.password = bcrypt.hashSync("Default" + (Math.random() * 100000000), saltRounds)
+        findOrCreate({email: profile._json.email}, newUser).then(user=>{
+            user = user.toObject()
+            cb(null, user)
+        })
+        .catch(err=>{
+            cb(err)
+        })
    }else{
         cb(new Error("Khong dang nhap thanh cong"))
    }
