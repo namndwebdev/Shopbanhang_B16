@@ -3,10 +3,12 @@ var router = express.Router();
 var authRouter = require('./auth')
 var uploadRouter = require('./upload')
 var userRouter = require('./user')
-const {checkAuth} = require('@middlewares/authen')
+var productRouter = require('./product')
+const {checkAuth, checkAdmin} = require('@middlewares/authen')
 /* GET home page. */
 router.use('/auth', authRouter)
-router.use('/user', checkAuth, userRouter)
+router.use('/user', checkAuth, checkAdmin, userRouter)
+router.use('/products', productRouter)
 router.use('/upload', uploadRouter)
 
 module.exports = router;

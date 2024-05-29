@@ -6,6 +6,7 @@ const checkAuth = (req, res, next)=>{
             token = token?.split(' ')[1]
             let data = verifyToken(token)
             if(data){
+                req.user = data
                 next()
             }
         }else{
@@ -16,6 +17,15 @@ const checkAuth = (req, res, next)=>{
     }
 }
 
+const checkAdmin = (req, res, next)=>{
+    if(req.user.role === 'admin'){
+        next()
+    }else{
+        return res.status(403).json('ban khong co quyen su dung api')
+    }
+}
+
 module.exports = {
-    checkAuth
+    checkAuth,
+    checkAdmin
 }

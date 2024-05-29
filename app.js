@@ -16,7 +16,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 3_600_000 }));
 app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 app.set('trust proxy', 1) // trust first proxy
 app.use(session({
@@ -28,7 +28,9 @@ app.use(session({
 
 require('@config/passport')
 
-
+app.get('/demo', (req, res)=>{
+  res.sendFile(path.join(__dirname, 'test.html'))
+})
 app.use('/api', indexRouter);
 
 

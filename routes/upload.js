@@ -5,6 +5,8 @@ const multer  = require('multer')
 const fs = require('fs')
 const PATH_UPLOAD = path.join(__dirname,'../uploads')
 const PATH_AVATAR_UPLOAD = path.join(__dirname,'../uploads/avatar')
+const {checkAuth, checkAdmin} = require('@middlewares/authen')
+
 if(!fs.existsSync(PATH_UPLOAD)){
     fs.mkdirSync(PATH_UPLOAD)
 }
@@ -26,8 +28,14 @@ const upload = multer({
     storage: storage
 })
 
+
 router.post('/', upload.single('avatar'), function(req, res, next) {
   res.json('them anh thanh cong')
 });
+
+router.use(checkAuth, checkAdmin)
+router.get('/', (req, res, next)=>{
+    res.json('ok')
+})
 
 module.exports = router;
