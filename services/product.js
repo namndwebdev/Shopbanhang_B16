@@ -19,9 +19,16 @@ function getProductById(id){
     })
 }
 
+function updateProduct(id, objUpdate){
+    return ProductModel.updateOne({
+        _id: id
+    }, objUpdate)
+}
+
 module.exports = {
     createProduct,
     getProduct,
     getTotalProduct,
-    getProductById
+    getProductById,
+    updateProduct
 }

@@ -1,9 +1,10 @@
-const {createProduct, getProduct, getTotalProduct, getProductById} = require('@services/product')
+const {createProduct, getProduct, getTotalProduct, getProductById, updateProduct} = require('@services/product')
 var express = require('express');
 var router = express.Router();
 const path = require('path')
 const multer  = require('multer')
 const fs = require('fs')
+const PATH_ROOT = path.join(__dirname, '..')
 const PATH_UPLOAD = path.join(__dirname,'../uploads')
 const PATH_AVATAR_UPLOAD = path.join(__dirname,'../uploads/product')
 
@@ -80,8 +81,61 @@ router.post('/', cpUpload ,async (req, res, next)=>{
     }
 })
 
-router.put('/:id', (req, res, next)=>{
-    res.json("sua 1 product")
+router.put('/:id', cpUpload, async (req, res, next)=>{
+    try {
+        let productFined = await getProductById(req.params.id)
+        if(!productFined){
+            return res.status(500).json('khong tim thay san pham update')
+        }
+
+        let {name, price, stock, deleteGallery} = req.body
+        let {image, gallery} = req.files
+        console.log(image);
+        if(image?.length > 0){
+            image = `/uploads/product/${image[0].filename}`
+        }else{
+            image = null
+        }
+        if(gallery?.length > 0){
+            gallery = gallery.map(item=>{
+                return `/uploads/product/${item.filename}`
+            })
+        }
+
+        let objUpdate = {}        
+        if(name){ objUpdate.name = name }
+        if(price){ objUpdate.price = price }
+        if(stock){ objUpdate.stock = stock }
+        if(image){ 
+            objUpdate.image = image 
+            // xoa anh cu~
+            let url = path.join(PATH_ROOT, productFined.image)
+            fs.unlink(url,()=>{})
+        }
+        if(deleteGallery){
+            deleteGallery.forEach(element => {
+                let url = path.join(PATH_ROOT, element)
+                fs.unlink(url,()=>{})
+            });
+        }else{
+            deleteGallery = []
+        }
+        let newGallery = productFined.gallery.filter(item=>{
+            return !deleteGallery.includes(item)
+        })
+        newGallery = newGallery.concat(gallery)
+
+        objUpdate.gallery = newGallery
+
+        console.log(objUpdate);
+        let data = await updateProduct(req.params.id, {
+            $set: objUpdate,
+        })
+        return res.json(data)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json('update khong thanh cong')
+    }
 })
 
 router.delete('/:id', (req, res, next)=>{
