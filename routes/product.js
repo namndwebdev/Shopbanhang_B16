@@ -1,9 +1,10 @@
-const {createProduct, getProduct, getTotalProduct, getProductById, updateProduct} = require('@services/product')
+const {createProduct, getProduct, getTotalProduct, getProductById, updateProduct, deleteProduct} = require('@services/product')
 var express = require('express');
 var router = express.Router();
 const path = require('path')
 const multer  = require('multer')
-const fs = require('fs')
+const fs = require('fs');
+const { deleteImgByPaths } = require('@helper/upload');
 const PATH_ROOT = path.join(__dirname, '..')
 const PATH_UPLOAD = path.join(__dirname,'../uploads')
 const PATH_AVATAR_UPLOAD = path.join(__dirname,'../uploads/product')
@@ -138,8 +139,20 @@ router.put('/:id', cpUpload, async (req, res, next)=>{
     }
 })
 
-router.delete('/:id', (req, res, next)=>{
-    res.json("Xoa 1 product")
+router.delete('/:id', async (req, res, next)=>{
+    try {
+        let id = req.params.id
+        let product = await getProductById(id)
+        if(!product){
+            return res.status(400).json('khong the san pham')
+        }
+        let arr = [product.image, ...product.gallery]
+        await deleteImgByPaths(arr)
+        await deleteProduct(id)
+        res.json('Xoa thanh cong')
+    } catch (error) {
+        return res.status(400).json('khong the san pham')
+    }
 })
 
 module.exports = router

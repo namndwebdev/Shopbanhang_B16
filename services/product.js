@@ -25,10 +25,18 @@ function updateProduct(id, objUpdate){
     }, objUpdate)
 }
 
+function deleteProduct(id){
+    return ProductModel.deleteOne({
+        _id: id
+    })
+}
+
+
 module.exports = {
     createProduct,
     getProduct,
     getTotalProduct,
     getProductById,
-    updateProduct
+    updateProduct,
+    deleteProduct
 }
