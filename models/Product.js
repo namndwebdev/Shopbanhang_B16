@@ -13,7 +13,8 @@ const productSchema = new Schema({
     },
     stock: {
         type: Number,
-        required: true
+        required: true,
+        min: 1
     },
     image: {
         type: String,

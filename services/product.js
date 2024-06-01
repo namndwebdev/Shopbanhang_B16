@@ -31,6 +31,32 @@ function deleteProduct(id){
     })
 }
 
+async function updateQuantityListProduct(listProduct){
+    const ids = listProduct.map(item => item.product);
+    const products = await ProductModel.find({ _id: { $in: ids } });
+
+    // Bước 2: Kiểm tra số lượng sau khi giảm
+    for (const item of listProduct) {
+      const product = products.find(p => p._id.equals(item.product));
+      if (!product) {
+        throw new Error(`Product with id ${item.product} not found`);
+      }
+      if (product.stock - item.quantity < 0) {
+        throw new Error(`Product with id ${item.product} will have negative quantity`);
+      }
+    }
+
+    const bulkOps = listProduct.map(item => ({
+        updateOne: {
+          filter: { _id: item.product },
+          update: { $inc: { stock: -item.quantity } },
+          options: { runValidators: true },
+          skipValidation: false,
+        }
+    }));
+    
+    return ProductModel.bulkWrite(bulkOps);
+}
 
 module.exports = {
     createProduct,
@@ -38,5 +64,6 @@ module.exports = {
     getTotalProduct,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    updateQuantityListProduct
 }
