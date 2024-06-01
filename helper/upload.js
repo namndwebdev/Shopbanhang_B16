@@ -18,7 +18,7 @@ async function deleteImgByPaths(arr){
                     }
                 })
             }else{
-                return reject('Khong co file dxoa`')
+                return resolve('Khong co file dxoa`')
             }
         })
         listPromise.push(pro)
