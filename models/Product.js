@@ -24,7 +24,14 @@ const productSchema = new Schema({
         {
             type: String
         }
-    ]
+    ],
+    comments: [{
+        idUser: {
+            type: String,
+            ref: 'User'
+        },
+        content: String
+    }]
 }, {
     collection: 'product',
     timestamps: true // This adds createdAt and updatedAt fields

@@ -8,7 +8,7 @@ require('dotenv').config()
 var app = require('@root/app');
 var debug = require('debug')('b15:server');
 var http = require('http');
-
+const { Server } = require('socket.io');
 /**
  * Get port from environment and store in Express.
  */
@@ -21,6 +21,14 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+const io = new Server(server);
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('chat message', (msg) => {
+    socket.broadcast.emit('nhan-tin', msg);
+  });
+});
+
 
 /**
  * Listen on provided port, on all network interfaces.

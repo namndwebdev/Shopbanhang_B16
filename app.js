@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session')
 var indexRouter = require('./routes/index');
-
 var app = express();
 
 // view engine setup
@@ -25,6 +24,9 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }))
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 require('@config/passport')
 
